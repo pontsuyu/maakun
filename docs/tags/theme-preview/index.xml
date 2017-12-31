@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Theme Preview on Even - A super concise theme for Hugo</title>
+    <title>Theme Preview on マーくん分析</title>
     <link>/tags/theme-preview/</link>
-    <description>Recent content in Theme Preview on Even - A super concise theme for Hugo</description>
+    <description>Recent content in Theme Preview on マーくん分析</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
     <lastBuildDate>Wed, 23 Aug 2017 18:03:09 +0800</lastBuildDate>
@@ -13,10 +13,10 @@
     
     <item>
       <title>Theme preview</title>
-      <link>/post/even-preview/</link>
+      <link>/bk/even-preview/</link>
       <pubDate>Wed, 23 Aug 2017 18:03:09 +0800</pubDate>
       
-      <guid>/post/even-preview/</guid>
+      <guid>/bk/even-preview/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;Copy from &lt;a href=&#34;https://laozhu.me/post/hugo-nuo-post-preview/&#34;&gt;《Hugo 主题 Nuo 文章样式预览》&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
