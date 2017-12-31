@@ -6,7 +6,7 @@ enableRobotsTXT = true
 enableEmoji = true
 theme = "hugo-theme-even"
 relativeurls = true
-publishDir = "content/post"
+publishDir = "docs"
 hasCJKLanguage = true
 languageCode = "ja-jp"
 
