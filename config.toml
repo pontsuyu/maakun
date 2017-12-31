@@ -1,5 +1,5 @@
-baseURL = " https://pontsuyu.github.io/maakun/"
-languageCode = "en"
+baseURL = "https://github.com/pontsuyu/maakun/"
+languageCode = "ja-jp"
 defaultContentLanguage = "en"
 title = "Even - A super concise theme for Hugo"
 enableRobotsTXT = true
@@ -7,8 +7,6 @@ enableEmoji = true
 theme = "hugo-theme-even"
 relativeurls = true
 publishDir = "docs"
-hasCJKLanguage = true
-languageCode = "ja-jp"
 
 hasCJKLanguage = true     # has chinese/japanese/korean ? # 自动检测是否包含 中文\日文\韩文
 paginate = 3                                              # 首页每页显示的文章数
