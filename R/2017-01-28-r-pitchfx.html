@@ -1,0 +1,362 @@
+<!-- BLOGDOWN-HEAD -->
+<!-- /BLOGDOWN-HEAD -->
+
+
+<p>今回は「PITCHf/xから見た田中将大投手」ということでPITCHf/xシステムを通じて取得したMLBの投球データを使っていろんな角度から田中将大投手を見てみたいと思います。</p>
+<div id="pitchfx" class="section level2">
+<h2>1. PITCHf/xとは？</h2>
+<p>PITCHf/xとは、SPORTVISION社が開発した投手の投球速度や投球軌道を追跡するスピード測定器システムです。<br />
+マウンドから本塁までの投球の球速、マグヌス効果によって引き起こされる変化の量、リリースポイント、スピン量、本塁上を通過した時にストライクゾーン内に入っているかを知ることが出来ます。</p>
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/6095476/34592967-33d1c4b8-f20b-11e7-990b-ea4ebddff76d.jpg" />
+
+</div>
+<p>引用：<a href="http://www.baseball-lab.jp/column/entry/128/" class="uri">http://www.baseball-lab.jp/column/entry/128/</a></p>
+</div>
+<div class="section level2">
+<h2>2. 田中将大投手の成績について</h2>
+<p>以下は田中投手のMLBでの成績です。</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">年</th>
+<th align="left">チーム</th>
+<th align="right">登板</th>
+<th align="right">投球回</th>
+<th align="right">完投</th>
+<th align="right">自責点</th>
+<th align="right">奪三振</th>
+<th align="right">勝</th>
+<th align="right">敗</th>
+<th align="right">セーブ</th>
+<th align="right">WHIP</th>
+<th align="right">防御率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2014</td>
+<td align="left">ヤンキース</td>
+<td align="right">20</td>
+<td align="right">136 1/3</td>
+<td align="right">3</td>
+<td align="right">42</td>
+<td align="right">141</td>
+<td align="right">13</td>
+<td align="right">5</td>
+<td align="right">0</td>
+<td align="right">1.06</td>
+<td align="right">2.77</td>
+</tr>
+<tr class="even">
+<td align="left">2015</td>
+<td align="left">ヤンキース</td>
+<td align="right">24</td>
+<td align="right">154</td>
+<td align="right">1</td>
+<td align="right">60</td>
+<td align="right">139</td>
+<td align="right">12</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">0.99</td>
+<td align="right">3.51</td>
+</tr>
+<tr class="odd">
+<td align="left">2016</td>
+<td align="left">ヤンキース</td>
+<td align="right">31</td>
+<td align="right">199 2/3</td>
+<td align="right">0</td>
+<td align="right">68</td>
+<td align="right">165</td>
+<td align="right">14</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">1.08</td>
+<td align="right">3.07</td>
+</tr>
+<tr class="even">
+<td align="left">2017</td>
+<td align="left">ヤンキース</td>
+<td align="right">30</td>
+<td align="right">178 1/3</td>
+<td align="right">1</td>
+<td align="right"><span style="color: red">94</span></td>
+<td align="right"><span style="color: blue">194</span></td>
+<td align="right">13</td>
+<td align="right"><span style="color: red">12</span></td>
+<td align="right">0</td>
+<td align="right">1.24</td>
+<td align="right">4.74</td>
+</tr>
+<tr class="odd">
+<td align="left">通算</td>
+<td align="left"></td>
+<td align="right">105</td>
+<td align="right">668 1/3</td>
+<td align="right">5</td>
+<td align="right">264</td>
+<td align="right">639</td>
+<td align="right">52</td>
+<td align="right">28</td>
+<td align="right">0</td>
+<td align="right">1.10</td>
+<td align="right">3.56</td>
+</tr>
+</tbody>
+</table>
+<p>2017年は、奪三振数と勝ち数が多かったものの自責点と負け数も多く、結果としてWHIP(Walks plus Hits per Inning Pitched、「投球回あたり与四球・被安打数合計」)の値が高くなってしまいました。</p>
+<div class="kome">
+<p>※ WHIP = (与四球 + 被安打) ÷ 投球回<br />
+1回に平均何人のランナーを出しているかという指標。一般に先発投手であれば1.00未満なら球界を代表するエースとされ、1.20未満ならエース級、逆に1.40を上回ると問題であると言われる。</p>
+</div>
+<p>田中投手は本当に不調だったのでしょうか？ 2017年と過去の傾向の違いをPITCHf/xのデータを使って見ていきましょう。</p>
+</div>
+<div class="section level2">
+<h2>3. データの取得</h2>
+<p>まずPITCHf/xのデータの取得方法についてです。元データは<a href="http://gd2.mlb.com/components/" class="uri">http://gd2.mlb.com/components/</a>にXML形式で置かれています。今回はRからこのデータをスクレイピングしてデータベースに格納してみます。</p>
+<p>Rには既に<code>{pitchRx}</code>パッケージというまさにこれ専用の便利なパッケージがあります。ただ使い勝手が悪く処理が遅かったため、時間のかかるapply系の部分を<code>{foreach}</code>パッケージを使って高速化したり、データベース作成(sqliteですが…)を内部で完結させたりと自分用に少々手を加えました。</p>
+<iframe class="hatenablogcard" src="https://hatenablog-parts.com/embed?url=https://github.com/pontsuyu/pitchRx2" width="300" height="150" frameborder="0" scrolling="no">
+</iframe>
+<p>※<code>{pitchRx}</code>パッケージの基本的な使い方は<a href="https://pitchrx.cpsievert.me/">コチラ</a>を参照。<code>{pitchRx2}</code>パッケージではinning_allデータのみスクレイピング可能にしています。</p>
+<p><code>{pitchRx}</code>パッケージではスクレイピングする際、初めと終わりの日付を指定するか、gameidを指定するのですが、大抵必要なデータはその中の一部で、全試合欲しい場合はほとんどないと思います。<code>{pitchRx2}</code>パッケージでは<code>get_gids()</code>というgameidの一覧を取得する関数を追加しました。start_yearとend_yearを指定すれば、その年の全てのgameidを取得することが出来ます(<code>pitxhRx2::game_ids</code>にすでに2017年までのgameidデータが入ってるので、ご活用ください)。この関数を実行した後、<code>stringr::str_detect()</code>などで日付やチームを絞ってから<code>scrape_inning_all()</code>を実行するのが、効率的かと思います。</p>
+<p><code>{pitchRx2}</code>パッケージはまだまだ改良の余地があるので要望があれば、<a href="https://twitter.com/ponsa__ku">twitter</a>でご連絡いただくか、Githubの<a href="https://github.com/pontsuyu/pitchRx2/issues">Issues</a>に書き込むなりしていただければと思います。</p>
+<pre class="r"><code># devtools::install_github(&quot;pontsuyu/pitchRx2&quot;)
+# 必要なパッケージは同時読み込まれます
+library(pitchRx2)
+# 2008〜2017年のgameidはあらかじめ用意してあるgame_idsをお使いください
+# ヤンキースのデータに絞ります
+nya &lt;- game_ids %&gt;% str_subset(&quot;201[4-7].*nya.*&quot;)
+# スクレイピングの実行(だいたい30分くらい)
+scrape_inning_all(gid = nya, db_name = &quot;nya&quot;)</code></pre>
+</div>
+<div class="section level2">
+<h2>3. 球種割合</h2>
+<p>1球データをデータベースに格納できたのでクエリを実行し、データを抽出、分析します。</p>
+<pre class="r"><code>db &lt;- src_sqlite(&quot;nya.sqlite3&quot;, create = F)
+db_list_tables(db$con)</code></pre>
+<pre><code>## [1] &quot;action&quot;       &quot;atbat&quot;        &quot;pitch&quot;        &quot;po&quot;          
+## [5] &quot;runner&quot;       &quot;sqlite_stat1&quot; &quot;sqlite_stat4&quot;</code></pre>
+<pre class="r"><code># &quot;action&quot; &quot;atbat&quot; &quot;pitch&quot; &quot;po&quot; &quot;runner&quot; &quot;sqlite_stat1&quot; &quot;sqlite_stat4&quot;
+# sqlite_stat1はデータベースに関する情報が入っている
+# データの抽出
+dat &lt;- dbGetQuery(db$con, &quot;SELECT
+                  pitcher_name, -- 投手名
+                  p_throws, -- 投手の利き腕
+                  batter_name, -- 打者名
+                  stand, -- 打者の立ち位置
+                  pitch_type, -- 球種
+                  start_speed, -- 初速
+                  end_speed, -- 終速
+                  spin_rate, -- 回転数
+                  spin_dir, -- 回転軸
+                  px, pz, -- 投球ロケーション
+                  x0, y0, z0, -- リリースポイント
+                  vx0, vy0, vz0, -- 速度
+                  ax, ay, az, -- 加速度
+                  b_height, -- バッターの身長(feet-inch)
+                  break_angle, -- 変化角
+                  break_length, -- 変化量
+                  pit.num as event_num, -- 試合ごとのイベント番号
+                  pit.des, -- 投球結果
+                  type,  -- 簡易投球結果
+                  event, -- 打席結果
+                  atb.date -- 日時
+                  FROM
+                  atbat atb, -- 打席テーブル
+                  pitch pit -- 投球データテーブル
+                  WHERE atb.url = pit.url -- スクレイピング先url
+                  AND atb.inning = pit.inning -- イニング
+                  AND atb.inning_side = pit.inning_side -- 表/裏
+                  AND atb.gameday_link = pit.gameday_link -- gameid
+                  AND atb.next_ = pit.next_ -- 次打者の有無
+                  AND atb.num = pit.num -- イベント番号
+                  -- キャンプ/プレーオフのデータは除外する処理
+                  AND ((CAST(REPLACE(atb.date, &#39;_&#39;, &#39;&#39;) as NUMBER)  BETWEEN 20140322 AND 20160928)
+                  OR   (CAST(REPLACE(atb.date, &#39;_&#39;, &#39;&#39;) as NUMBER) BETWEEN 20150406 AND 20151004)
+                  OR   (CAST(REPLACE(atb.date, &#39;_&#39;, &#39;&#39;) as NUMBER) BETWEEN 20160403 AND 20161002)
+                  OR   (CAST(REPLACE(atb.date, &#39;_&#39;, &#39;&#39;) as NUMBER) BETWEEN 20170402 AND 20171001))
+                  AND atb.pitcher_name is not null
+                  AND pit.pitch_type is not null
+                  ;&quot;)
+# sort(unique(dat$pitcher_name))
+# 見たいピッチャーの名前を入力
+p_name &lt;- &quot;Masahiro Tanaka&quot;
+pitch &lt;- dat %&gt;% 
+         filter(pitcher_name==p_name) %&gt;% 
+         separate(date, c(&quot;year&quot;, &quot;month&quot;, &quot;day&quot;), sep = &quot;_&quot;)
+# 打者の立ち位置別球種割合を算出
+pt &lt;- pitch %&gt;% 
+      group_by(year, stand, pitch_type) %&gt;% 
+      summarise(N = n()) %&gt;% 
+      group_by(year, stand) %&gt;% 
+      mutate(per = N/sum(N)*100) %&gt;% 
+      inner_join(pitch_type, by = &quot;pitch_type&quot;) %&gt;% # 球種名称を紐付ける
+      arrange(year, pitch_type_name) %&gt;% 
+      mutate(row = row_number()) %&gt;% # ここから下はグラフ用の処理
+      arrange(desc(row)) %&gt;% 
+      group_by(year, stand) %&gt;% 
+      mutate(cumsum = cumsum(per) - 0.5*per,
+             year_N = paste0(stand, &quot;_&quot;, year, &quot;(N=&quot;, sum(N), &quot;)&quot;)) %&gt;% 
+      ungroup %&gt;%
+      as.data.frame
+
+ggplot(pt, aes(year_N, per, fill = pitch_type_name)) + 
+  geom_bar(stat = &quot;identity&quot;) +
+  geom_text(aes(label = round(per,digits = 2), y = cumsum), size = 3) +
+  ggtitle(paste0(&quot;Proportion of pitch types (&quot;, p_name, &quot;)&quot;)) +
+  xlab(&quot;stand_year_pitching-N&quot;) + ylab(&quot;percent&quot;) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5))</code></pre>
+<p><img src="2017-01-28-r-pitchfx_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>捕手のリードの影響もありますが、当然右打者と左打者で攻め方が違って見えます。球種割合については近年Sliderの割合が増え、その分Fastball(cutter, four-seam)の割合が下がっているようです。</p>
+</div>
+<div class="section level2">
+<h2>4. コース</h2>
+<p>打たれないようにするには球種だけでなく、コースも大事になってきます。田中投手の投球をアニメーションにして見てみましょう。投球は審判側から見て奥から手前に向かって投球しているイメージです。</p>
+<pre class="r"><code>library(animation)
+# animateFXの出力に対し、追加したい層を指定(1個1個の要素が「＋」で足されていくイメージ)
+x &lt;- list(facet_grid(stand ~ year, labeller = label_both), coord_equal())
+# アニメーションにして出力
+saveGIF({animateFX(pitch, layers = x, point.alpha = 0.5)},
+        interval = 1.0, movie.name = paste0(p_name, &quot;.gif&quot;),
+        ani.height = 600, ani.width = 1200)</code></pre>
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/6095476/35472430-65eb4c2c-03b2-11e8-9f35-69deb6d24cd8.gif" />
+
+</div>
+<p>また、ホームベースを通過したときの球種ごとのコースで頻度が高いところを色付けしてみます。</p>
+<pre class="r"><code>snapshot &lt;- getSnapshots(pitch, interval = 0.01)
+last_snapshot &lt;- as.data.frame(snapshot[,dim(snapshot)[2]-1,])
+colnames(last_snapshot) &lt;- c(&quot;Horizon&quot;, &quot;y&quot;, &quot;Height&quot;)
+last_snapshot &lt;- cbind(pitch, last_snapshot)
+last_snapshot &lt;- inner_join(last_snapshot, pitch_type) %&gt;% filter(pitch_type_name!=&quot;Pitchout&quot;)
+strikezone &lt;- list()
+for(i in 1:4) strikezone[[i]] &lt;- getStrikezones(pitch[pitch$year == i+2013,]) %&gt;% as.data.frame
+names(strikezone) &lt;- c(2014:2017)
+strikezone &lt;- bind_rows(strikezone, .id = &quot;year&quot;)
+last_snapshot &lt;- inner_join(last_snapshot, strikezone)
+theme_set(theme_bw(base_family = &quot;Osaka&quot;))
+ggplot(last_snapshot, aes(Horizon, Height, color=pitch_type_name)) + 
+       stat_density2d(aes(fill=pitch_type_name), geom=&quot;polygon&quot;, bins=1.5, alpha=.2) +
+       geom_rect(aes(ymax = Top, ymin = Bottom, xmax = Right, xmin = Left),
+                 alpha = 0, colour = &quot;black&quot;) +
+       xlim(-2, 2) + ylim(0.5, 4) +
+       ggtitle(&quot;球種ごとのコース別 density plot&quot;) + 
+       xlab(&quot;Horizontal Pitch Location&quot;) + ylab(&quot;Height From Ground&quot;) + 
+       facet_grid(stand ~ year, labeller = label_both) +
+       coord_equal()</code></pre>
+<p><img src="2017-01-28-r-pitchfx_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>左打者・右打者ともに外角低めに集まっていますが、近年の田中将大投手には</p>
+<ul>
+<li>リリースポイントのばらつき</li>
+<li>左打者に対する甘い球</li>
+</ul>
+<p>が多くなっているように見えます。2017年はMLB全体でも過去最多の本塁打数を記録しましたが、田中将大投手自身もリーグ3位の35本塁打を浴びてしまいました。<br />
+では、実際打たれた球はどのような球種・コースだったのでしょうか。</p>
+</div>
+<div class="section level2">
+<h2>4. 対打席結果のまとめ</h2>
+<p>2017年は奪三振数が多いもののやはり被本塁打の多さが目立ちます。</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">打席結果</th>
+<th align="right">2014</th>
+<th align="right">2015</th>
+<th align="right">2016</th>
+<th align="right">2017</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Batters faced(対戦打者数)</td>
+<td align="right">541</td>
+<td align="right">609</td>
+<td align="right">805</td>
+<td align="right">755</td>
+</tr>
+<tr class="even">
+<td align="left">Strikeout (奪三振)</td>
+<td align="right">141</td>
+<td align="right">139</td>
+<td align="right">165</td>
+<td align="right">194</td>
+</tr>
+<tr class="odd">
+<td align="left">Single (単打)</td>
+<td align="right">81(15.0%)</td>
+<td align="right">65(10.7%)</td>
+<td align="right">121(15.0%)</td>
+<td align="right">103(13.6%)</td>
+</tr>
+<tr class="even">
+<td align="left">Double (二塁打)</td>
+<td align="right">26(4.8%)</td>
+<td align="right">32(5.3%)</td>
+<td align="right">34(4.2%)</td>
+<td align="right">42(5.6%)</td>
+</tr>
+<tr class="odd">
+<td align="left">Triple (三塁打)</td>
+<td align="right">1(0.2%)</td>
+<td align="right">3(0.5%)</td>
+<td align="right">2(0.2%)</td>
+<td align="right">0(0.0%)</td>
+</tr>
+<tr class="even">
+<td align="left">Home Run (本塁打)</td>
+<td align="right">15(2.8%)</td>
+<td align="right">25(4.1%)</td>
+<td align="right">22(2.7%)</td>
+<td align="right">35(4.6%)</td>
+</tr>
+<tr class="odd">
+<td align="left">Walk (四球)</td>
+<td align="right">21</td>
+<td align="right">27</td>
+<td align="right">36</td>
+<td align="right">40</td>
+</tr>
+<tr class="even">
+<td align="left">Hit By Pitch (死球)</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">7</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>pitch_x &lt;- pitch %&gt;% 
+           filter(type==&quot;X&quot;, event %in% c(&quot;Single&quot;, &quot;Double&quot;, &quot;Triple&quot;, &quot;Home Run&quot;)) %&gt;% 
+           inner_join(pitch_type)</code></pre>
+<pre><code>## Joining, by = &quot;pitch_type&quot;</code></pre>
+<pre class="r"><code># ヒットを打たれた球種割合
+round(prop.table(table(pitch_x$year, pitch_x$pitch_type_name),margin = 1)*100,digits = 2)</code></pre>
+<pre><code>##       
+##        Curveball Fastball(cutter) Fastball(four-seam)
+##   2014      5.69             2.44               26.83
+##   2015      2.40             7.20               22.40
+##   2016      5.03            12.29                5.59
+##   2017      2.78             3.33               12.78
+##       
+##        Fastball(split-finger) Sinker Slider
+##   2014                  21.95  30.89  12.20
+##   2015                  30.40  23.20  14.40
+##   2016                  23.46  26.26  27.37
+##   2017                  23.89  29.44  27.78</code></pre>
+<p>2014年、2015年はいろんな球種が打たれてますが、2016年、2017年はSinker、Sliderに集中しているようです。2017年は長打を打たれている割合が高く、さらに被本塁打が多いので残塁させることが出来ず自責点が高くなってしまったと考えられます。</p>
+</div>
+<div class="section level2">
+<h2>まとめ</h2>
+<p>今回は現状把握として田中将大投手の球種やコースに着目して集計をしました。他の投手について集計していないので断言できませんが、2017年の田中投手は不調というよりはMLB全体のバッターレベルの上昇が影響していて、田中将大投手の球質と上手く噛み合ってしまったことが原因かもしれません。そして、ランナーを背負ったときに残塁させることが出来ず、長打を打たれてしまい結果として防御率が高くなってしまったのだと考えられます。</p>
+<p>次回はこのまとめを検証するためにランナーがいる状態での</p>
+<ul>
+<li>リリースポイントの変化</li>
+<li>球種・コースの変化</li>
+<li>被打率</li>
+<li>残塁数 / 被出塁数</li>
+</ul>
+<p>を深掘りしたいと思います。</p>
+</div>
