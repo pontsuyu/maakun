@@ -1,7 +1,7 @@
 ---
-title: "PITCHf/xから見た田中将大投手（１）"
+title: "PITCHf/xから見た田中将大投手"
 author: "Tsuyupon"
-date: "`r Sys.Date()`"
+date: "2018-01-28"
 categories: ["baseball"]
 tags: ["R", "セイバーメトリクス"]
 output:
@@ -59,7 +59,7 @@ Rには既に`{pitchRx}`パッケージというまさにこれ専用の便利�
 
 `{pitchRx2}`パッケージはまだまだ改良の余地があるので要望があれば、[twitter](https://twitter.com/ponsa__ku)でご連絡いただくか、Githubの[Issues](https://github.com/pontsuyu/pitchRx2/issues)に書き込むなりしていただければと思います。
 
-```{r, eval=FALSE}
+```{r eval=FALSE}
 # devtools::install_github("pontsuyu/pitchRx2")
 # 必要なパッケージは同時読み込まれます
 library(pitchRx2)
@@ -233,12 +233,3 @@ round(prop.table(table(pitch_x$year, pitch_x$pitch_type_name),margin = 1)*100,di
 ## まとめ
 今回は現状把握として田中将大投手の球種やコースに着目して集計をしました。他の投手について集計していないので断言できませんが、2017年の田中投手は不調というよりはMLB全体のバッターレベルの上昇が影響していて、田中将大投手の球質と上手く噛み合ってしまったことが原因かもしれません。そして、ランナーを背負ったときに残塁させることが出来ず、長打を打たれてしまい結果として防御率が高くなってしまったのだと考えられます。
 
-
-次回はこのまとめを検証するためにランナーがいる状態での
-
-- リリースポイントの変化
-- 球種・コースの変化
-- 被打率
-- 残塁数 / 被出塁数
-
-を深掘りしたいと思います。
